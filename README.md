@@ -6,4 +6,4 @@ A partir da API do TMDB, busco os 50 "top rated" filmes e séries, capturo os da
 Para rodar a aplicação:
 npm install (se não tiver os node modules);
 npm start (para iniciar a aplicação);
-demora cerca de 30 segundos para aplicação buscar os dados da API.
+ainda está demorando (5 a 7 seg) para buscar os dados da API, mas estou otimizando ela no momento.
