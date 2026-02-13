@@ -1,4 +1,3 @@
-
 import { Pessoa } from "./Pessoa.ts";
 
 export class Participacao{

@@ -1,7 +1,7 @@
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-export async function getObras(type: "filmes" | "series"): Promise<any[]> {
-  const res = await fetch(`${BASE_URL}/${type}`);
+export async function getObras(type: "filmes" | "series", page?: number): Promise<any[]> {
+  const res = await fetch(`${BASE_URL}/${type}?page=${page}`);
   return res.json();
 }
 
