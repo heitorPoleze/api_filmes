@@ -1,7 +1,7 @@
 import { tipoObra } from "../Controllers/tipoObra.ts";
-import { Filme } from "../entity/domain/Filme.ts";
-import { Obra } from "../entity/domain/Obra.ts";
-import { Serie } from "../entity/domain/Serie.ts";
+import { Filme } from "../entities/domains/Filme.ts";
+import { Obra } from "../entities/domains/Obra.ts";
+import { Serie } from "../entities/domains/Serie.ts";
 import dotenv from "dotenv";
 dotenv.config();
 const API_KEY = process.env.TMDB_API_KEY;
