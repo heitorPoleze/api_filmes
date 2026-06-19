@@ -1,5 +1,5 @@
-import { tipoObra } from "../Controllers/tipoObra";
-import { RepositorioObras } from "./RepositorioObras";
+import { tipoObra } from "../Controllers/tipoObra.ts";
+import { RepositorioObras } from "./RepositorioObras.ts";
 import dotenv from "dotenv";
 dotenv.config();
 const API_KEY = process.env.TMDB_API_KEY;

@@ -1,7 +1,7 @@
 import { tipoObra } from "../Controllers/tipoObra.ts";
-import { Filme } from "../Models/Filme.ts";
-import { Obra } from "../Models/Obra.ts";
-import { Serie } from "../Models/Serie.ts";
+import { Filme } from "../entity/domain/Filme.ts";
+import { Obra } from "../entity/domain/Obra.ts";
+import { Serie } from "../entity/domain/Serie.ts";
 import dotenv from "dotenv";
 dotenv.config();
 const API_KEY = process.env.TMDB_API_KEY;
@@ -9,7 +9,7 @@ export class RepositorioObras {
     private tipoObra: tipoObra;
     constructor(tipoObra: tipoObra) {
         this.tipoObra = tipoObra;
-    }
+    },
     private obras: Array<Obra> = [];
     async getMelhoresObras(page: number = 1): Promise<any[]> {
         const url = `https://api.themoviedb.org/3/${this.tipoObra}/top_rated?api_key=${API_KEY}&page=${page}`;
