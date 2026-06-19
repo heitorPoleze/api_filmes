@@ -1,34 +1,30 @@
 import { tipoObra } from "../types/tipoObra.ts";
 import { Ator } from "./Ator.ts";
-import { IPesquisavel } from "./IPesquisavel.ts";
-import { Participacao } from "./Participacao.ts";
-import { Pessoa } from "./Pessoa.ts";
 
-export abstract class Obra implements IPesquisavel {
+export abstract class Obra {
     private _id: number;
     private _name: string;
     private _overview: string;
     private _genres: Array<string>;
     private _nota: number;
-    private _equipe: Array<Participacao>;
+    private _atores: Array<Ator>;
     
     private _imgLink?: string;
     private _release_date?: string;
 
-    constructor(id: number, name: string, overview: string, nota: number, equipe: Array<Participacao>, genres: Array<string>, imgLink?: string, release_date?: string) {
+    constructor(id: number, name: string, overview: string, nota: number, atores: Array<Ator>, genres: Array<string>, imgLink?: string, release_date?: string) {
         this._id = id;
         this._name = name;
         this._overview = overview;
         this._genres = genres;
         this._nota = Number(nota.toFixed(2));
-        this._equipe = equipe;
+        this._atores = atores;
         this._release_date = release_date;
 
         if (imgLink) {
             this._imgLink = imgLink.startsWith("http") ? imgLink : "https://image.tmdb.org/t/p/w500" + imgLink;
         }
     }
-
 
     abstract get tipoObra(): tipoObra;
 
@@ -47,11 +43,8 @@ export abstract class Obra implements IPesquisavel {
     get nota(): number {
         return this._nota;
     }
-    get equipe(): Array<Pessoa> {
-        return this._equipe.map(equipe => equipe.participante);
-    }
     get atores(): Array<Ator> {
-        return this.equipe.filter(equipe => equipe instanceof Ator);
+        return [...this._atores];
     }
     get genres(): Array<string> {
         return [...this._genres];

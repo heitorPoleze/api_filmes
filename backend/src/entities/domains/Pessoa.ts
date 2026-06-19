@@ -1,6 +1,4 @@
-import { IPesquisavel } from "./IPesquisavel.ts";
-
-export class Pessoa implements IPesquisavel{
+export class Pessoa {
     private _name: string;
     
     constructor(name: string){
@@ -11,9 +9,5 @@ export class Pessoa implements IPesquisavel{
     }
     toJson(): object{
         return {name: this.name};
-    }
-
-    pesquisarPorCriterio(criterio: string): boolean {
-        return this.name.toLowerCase().includes(criterio.toLowerCase()); 
     }
 }

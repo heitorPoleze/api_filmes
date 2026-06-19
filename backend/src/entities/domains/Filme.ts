@@ -1,20 +1,21 @@
 import { tipoObra } from "../types/tipoObra.ts";
+import { Ator } from "./Ator.ts";
 import { Diretor } from "./Diretor.ts";
 import { Obra } from "./Obra.ts";
-import { Participacao } from "./Participacao.ts";
 
 export class Filme extends Obra {
-    constructor(id: number, name: string, overview: string, nota: number, equipe: Array<Participacao>, genres: Array<string>, imgLink?: string, release_date?: string ) {
-        super(id, name, overview, nota, equipe, genres, imgLink, release_date);
+    private _diretores: Diretor[];
+    constructor(id: number, name: string, overview: string, nota: number, atores: Array<Ator>, genres: Array<string>, diretores: Diretor[], imgLink?: string, release_date?: string ) {
+        super(id, name, overview, nota, atores, genres, imgLink, release_date);
+        this._diretores = diretores;
     }   
 
     get tipoObra(): tipoObra {
         return 'movie';
     }
 
-
     get diretor(): Array<Diretor> {
-        return [...this.equipe.filter(equipe => equipe instanceof Diretor)];
+        return [...this._diretores];
     }
 
     toString(): string {
