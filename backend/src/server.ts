@@ -8,6 +8,7 @@ const start = async () =>{
 
     const seeder = new SeedDatabaseService();
     await seeder.executar();
+    console.log("Obras inseridas com sucesso no banco de dados.");
 }
 
 start();

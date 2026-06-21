@@ -31,14 +31,14 @@ export const ObraModel = model<ObraDoc>("Obra", ObraBaseSchema);
 export const FilmeModel = ObraModel.discriminator<FilmeDoc>(
   "filme",
   new Schema({
-    diretor: { type: [String], default: [] }
+    diretores: { type: [String], default: [] }
   })
 );
 
 export const SerieModel = ObraModel.discriminator<SerieDoc>(
   "serie",
   new Schema({
-    number_of_episodes: { type: Number, required: true },
-    number_of_seasons: { type: Number, required: true }
+    number_of_episodes: { type: Number, required: false, default: 0},
+    number_of_seasons: { type: Number, required: false, default: 0 }
   })
 );
