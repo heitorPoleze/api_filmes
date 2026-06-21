@@ -1,67 +1,24 @@
-import { Filme } from "../../entities/domains/Filme.ts";
 import { Obra } from "../../entities/domains/Obra.ts";
-import { Serie } from "../../entities/domains/Serie.ts";
-import dotenv from "dotenv";
-dotenv.config();
-const API_KEY = process.env.TMDB_API_KEY;
-export class RepositorioObras {
-    private tipoObra: tipoObra;
-    constructor(tipoObra: tipoObra) {
-        this.tipoObra = tipoObra;
-    },
-    private obras: Array<Obra> = [];
-    async getMelhoresObras(page: number = 1): Promise<any[]> {
-        const url = `https://api.themoviedb.org/3/${this.tipoObra}/top_rated?api_key=${API_KEY}&page=${page}`;
+import { tipoObra } from "../../entities/types/tipoObra.ts";
+import 'dotenv/config';
 
-        const response = await fetch(url);
-    if (!response.ok) throw new Error("Erro na API externa");
-    const data = await response.json();
-    return data.results;
+export abstract class ApiRepositorioObras{
+    protected _topRatedUrl: string;
+    protected _baseURL: string;
+    protected _api_key: string;
+    private _tipoObra: tipoObra;
+    constructor(tipoObra: tipoObra){
+        this._tipoObra = tipoObra;
+        this._api_key = process.env.TMDB_API_KEY as string;
+        this._baseURL = `https://api.themoviedb.org/3/${this._tipoObra}/`;
+        this._topRatedUrl = `${this._baseURL}top_rated?api_key=${this._api_key}`;
     }
-
-    async getNomesDosGenerosDaObra(tipoObra: tipoObra, obraId: number): Promise<string[]> {
-      const generos: string[] = [];
-      const url = `https://api.themoviedb.org/3/${tipoObra}/${obraId}?api_key=${API_KEY}`;
-      const response: Response = await fetch(url);
-      const data = await response.json();
-      data.genres.forEach((genero: any) => {
-        generos.push(genero.name);
-      });
-      return generos;
+    get tipoObra(){
+        return this._tipoObra
     }
 
-
-    adicionar(obra: Obra): void {
-        this.obras.push(obra);
-    }
-    listarSeries(): Serie[] {
-        return this.obras.filter((obra: Obra) => {
-            return obra instanceof Serie
-        })
-    }
-    listarFilmes(): Filme[] {
-        return this.obras.filter((obra: Obra) => {
-            return obra instanceof Filme
-        })
-    }
-    buscarPorGenero(inpGenero: string[]): Obra[] {
-        return this.obras.filter(obra => inpGenero.every(genero => obra.genres.includes(genero)));
-    }
-
-    buscarPorTitulo(inpTitulo: string): Obra[] {
-        return this.obras.filter(obra => obra.pesquisarPorCriterio(inpTitulo));
-    }
-
-    buscarPorNomeAtor(inpNome: string): Obra[] {
-        return this.obras.filter(obra => obra.atores.some(ator => ator.pesquisarPorCriterio(inpNome)));
-    }
-
-    buscarPorNomePersonagem(inpNome: string): Obra[] {
-        return this.obras.filter(obra => obra.atores.some(ator => ator.character.toLowerCase().includes(inpNome.toLowerCase())));
-    }
-
-    buscarPorNomeDiretor(inpNome: string): Filme[] {
-        const filmes = this.obras.filter(obra => obra instanceof Filme) as Filme[];
-        return filmes.filter(filme => filme.diretor.some(diretor => diretor.pesquisarPorCriterio(inpNome)));
-    }
+    abstract getObras(quantidadeObras: number): Promise<Obra[]>
+    abstract getGeneros(obra: Obra): Promise<Obra>
+    abstract getAtores(obra: Obra): Promise<Obra>
+    protected abstract mapToObra(jsonTMDB: any): Obra
 }

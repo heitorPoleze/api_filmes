@@ -1,17 +1,157 @@
-import { tipoObra } from "../Controllers/tipoObra.ts";
-import { RepositorioObras } from "./apiRepositorioObras.ts";
-import dotenv from "dotenv";
-dotenv.config();
-const API_KEY = process.env.TMDB_API_KEY;
-export class RepositorioSeries extends RepositorioObras {
-    constructor(tipoObra: tipoObra) {
-        super(tipoObra);
+import { Ator } from "../../entities/domains/Ator.ts";
+import { Obra } from "../../entities/domains/Obra.ts";
+import { Serie } from "../../entities/domains/Serie.ts";
+import { ApiRepositorioObras } from "./apiRepositorioObras.ts";
+
+export class ApiRepositorioSeries extends ApiRepositorioObras {
+    constructor() {
+        super("tv");
     }
 
-    async getNumeroDeEpisodiosETemporadas(obraId: number): Promise<{ number_of_episodes: number, number_of_seasons: number }> {
-      const url = `https://api.themoviedb.org/3/tv/${obraId}?api_key=${API_KEY}`;
-      const response: Response = await fetch(url);
-      const data = await response.json();
-      return { number_of_episodes: data.number_of_episodes, number_of_seasons: data.number_of_seasons };
+    async getObras(quantidadeObras: number): Promise<Serie[]> {
+        const series: Serie[] = [];
+        const qtdObrasPorPagina = 20;
+        //arredonda pra cima para o numero inteiro mais proximo
+        const paginasNecessarias = Math.ceil(quantidadeObras / qtdObrasPorPagina);
+
+        try {
+            for (let i = 1; i <= paginasNecessarias; i++) {
+                const response = await fetch(`${this._topRatedUrl}&page=${i}`);
+
+                if (!response.ok) {
+                    throw new Error("Erro na comunicação com a API TMDB");
+                }
+
+                const data = await response.json();
+                const seriesMapeadas = data.results.map((payloadTMDB: any) => this.mapToObra(payloadTMDB));
+                series.push(...seriesMapeadas);
+            }
+
+            return series.slice(0, quantidadeObras);
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error("Falha ao buscar filmes:", error.message);
+            }
+            console.error(error)
+            throw new Error("Erro desconhecido ao buscar filmes.");
+        }
+    }
+
+    async getGeneros(serie: Serie): Promise<Serie> {
+        try {
+            const id = serie.id;
+            const url = `${this._baseURL}${id}?api_key=${this._api_key}`;
+            const response = await fetch(url);
+
+            if (!response.ok) throw new Error("Erro na comunicação com API TMDB");
+
+            const data = await response.json();
+
+            const generos: string[] = [];
+            data.genres.forEach((genre: any) => generos.push(genre.name))
+
+            return new Serie(
+                serie.id,
+                serie.name,
+                serie.overview,
+                serie.nota,
+                serie.atores,
+                generos,
+                serie.number_of_episodes,
+                serie.number_of_seasons,
+                serie.imgLink,
+                serie.release_date
+            )
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error(`Falha ao buscar gêneros do filme ${serie.name}: ${error.message}`);
+            }
+            console.error(error)
+            throw new Error("Erro desconhecido ao buscar gênero do filme.");
+        }
+    }
+
+    async getAtores(serie: Serie): Promise<Serie> {
+        try {
+            const id = serie.id;
+            const url = `${this._baseURL}${id}/credits?api_key=${this._api_key}`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("Erro na comunicação com API TMDB");
+            const data = await response.json();
+
+            const atores: Ator[] = [];
+            data.cast.slice(0, 15).map((ator: any) => {
+                atores.push(new Ator(
+                    ator.name,
+                    ator.character
+                ))
+            });
+
+            return new Serie(
+                serie.id,
+                serie.name,
+                serie.overview,
+                serie.nota,
+                atores,
+                serie.genres,
+                serie.number_of_episodes,
+                serie.number_of_seasons,
+                serie.imgLink,
+                serie.release_date
+            )
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error(`Falha ao buscar atores do filme ${serie.name}: ${error.message}`);
+            }
+            console.error(error)
+            throw new Error("Erro desconhecido ao buscar atores do filme.");
+        }
+    }
+
+    async getNumberOfEpisodesAndSeasons(serie: Serie): Promise<Serie> {
+        try{
+            const id = serie.id;
+            const url = `${this._baseURL}${id}?api_key=${this._api_key}`
+
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("Erro na comunicação com API TMDB");
+            const data = await response.json();
+
+            const number_of_episodes = data.number_of_episodes;
+            const number_of_seasons = data.number_of_seasons;
+
+            return new Serie(
+                serie.id,
+                serie.name,
+                serie.overview,
+                serie.nota,
+                serie.atores,
+                serie.genres,
+                number_of_episodes,
+                number_of_seasons,
+                serie.imgLink,
+                serie.release_date
+            )
+        }catch(error){
+            if (error instanceof Error) {
+                console.error(`Falha ao buscar dados do filme ${serie.name}: ${error.message}`);
+            }
+            console.error(error)
+            throw new Error("Erro desconhecido ao buscar dados do filme.");
+        }
+    }
+    protected mapToObra(jsonTMDB: any): Serie {
+        return new Serie(
+            jsonTMDB.id,
+            jsonTMDB.name,
+            jsonTMDB.overview,
+            jsonTMDB.vote_average,
+            [],
+            [],
+            jsonTMDB.number_of_episodes || 0,
+            jsonTMDB.number_of_seasons || 0,
+            jsonTMDB.poster_path,
+            jsonTMDB.first_air_date,
+        )
     }
 }
