@@ -28,4 +28,11 @@ export class Filme extends Obra {
             diretor: this.diretor.map(diretor => diretor.name)
         };  
     }
+
+    toDatabaseDocument(): object {
+        return {
+            ...super.toDatabaseDocument(), 
+            diretores: this.diretor.map(d => d.name),
+        }
+    }
 }

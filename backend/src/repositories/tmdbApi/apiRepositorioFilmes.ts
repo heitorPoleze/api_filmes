@@ -116,7 +116,7 @@ export class ApiRepositorioFilmes extends ApiRepositorioObras {
                 .filter((tecnico: any) => tecnico.job === "Director")
                 .map((diretorJson: any) => new Diretor(diretorJson.name));
 
-            return new Filme(
+            const newFilme =  new Filme(
                 filme.id,
                 filme.name,
                 filme.overview,
@@ -127,6 +127,8 @@ export class ApiRepositorioFilmes extends ApiRepositorioObras {
                 filme.imgLink,
                 filme.release_date
             )
+            console.log("FILMES COM DIRETORES", newFilme);
+            return newFilme;
         } catch (error) {
             if (error instanceof Error) {
                 console.error(`Falha ao buscar diretores do filme ${filme.name}: ${error.message}`);

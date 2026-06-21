@@ -86,8 +86,7 @@ export class ApiRepositorioSeries extends ApiRepositorioObras {
                     ator.character
                 ))
             });
-
-            return new Serie(
+            const newSerie =  new Serie(
                 serie.id,
                 serie.name,
                 serie.overview,
@@ -98,7 +97,9 @@ export class ApiRepositorioSeries extends ApiRepositorioObras {
                 serie.number_of_seasons,
                 serie.imgLink,
                 serie.release_date
-            )
+            );
+
+            return newSerie;
         } catch (error) {
             if (error instanceof Error) {
                 console.error(`Falha ao buscar atores do filme ${serie.name}: ${error.message}`);

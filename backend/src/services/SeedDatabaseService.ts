@@ -1,6 +1,6 @@
 import { Filme } from "../entities/domains/Filme.ts";
 import { Serie } from "../entities/domains/Serie.ts";
-import { FilmeModel, SerieModel } from "../entities/models/ObraModel.ts";
+import { FilmeModel, ObraModel, SerieModel } from "../entities/models/ObraModel.ts";
 import { ApiRepositorioFilmes } from "../repositories/tmdbApi/apiRepositorioFilmes.ts";
 import { ApiRepositorioSeries } from "../repositories/tmdbApi/apiRepositorioSeries.ts";
 
@@ -22,9 +22,9 @@ export class SeedDatabaseService {
                     let filmeAtualizado = await this._filmeRepo.getAtores(filme);
 
                     filmeAtualizado = await this._filmeRepo.getDiretores(filmeAtualizado);
-
+                    
                     filmeAtualizado = await this._filmeRepo.getGeneros(filmeAtualizado);
-
+                    
                     return filmeAtualizado;
                 })
             );
@@ -48,9 +48,9 @@ export class SeedDatabaseService {
                 series.map(async (serie: Serie) => {
                     let serieAtualizada = await this._serieRepo.getAtores(serie);
 
-                    serieAtualizada = await this._serieRepo.getGeneros(serie);
+                    serieAtualizada = await this._serieRepo.getGeneros(serieAtualizada);
 
-                    serieAtualizada = await this._serieRepo.getNumberOfEpisodesAndSeasons(serie);
+                    serieAtualizada = await this._serieRepo.getNumberOfEpisodesAndSeasons(serieAtualizada);
 
                     return serieAtualizada;
                 })
@@ -70,8 +70,14 @@ export class SeedDatabaseService {
 
     async executar(): Promise<void> {
         try {
-            await this.seedearFilmes();
-            await this.seedearSeries();
+            const totalObras = await ObraModel.countDocuments();
+            if(totalObras < 90){
+                await this.seedearFilmes();
+                await this.seedearSeries();
+            }else{
+                console.log("Dados suficientes no banco de dados.")
+            }
+
         } catch (error) {
             if (error instanceof Error) {
                 throw new Error(error.message);

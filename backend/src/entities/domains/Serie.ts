@@ -35,4 +35,12 @@ export class Serie extends Obra {
             number_of_seasons: this.number_of_seasons
         };
     }
+
+    toDatabaseDocument(): object {
+        return {
+            ...super.toDatabaseDocument(),
+            number_of_episodes: this.number_of_episodes,
+            number_of_seasons: this.number_of_seasons
+        }
+    }
 }
