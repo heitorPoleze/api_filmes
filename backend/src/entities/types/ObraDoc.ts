@@ -1,5 +1,5 @@
 export interface ObraDoc  {
-  _id?: number; 
+  _id: number; 
   name: string;
   overview: string;
   genres: string[];
@@ -12,7 +12,7 @@ export interface ObraDoc  {
 
 
 export interface FilmeDoc extends ObraDoc {
-  diretor: string[];
+  diretores: string[];
 }
 
 export interface SerieDoc extends ObraDoc {

@@ -3,12 +3,12 @@ import { connectDB } from "./config/database.ts";
 import { SeedDatabaseService } from "./services/SeedDatabaseService.ts";
 
 const start = async () =>{
-    app.listen(3000, () => console.log("rodando na porta 3000"));
+    const PORT = process.env.PORT || 3333;
+    app.listen(PORT, () => console.log("rodando na porta ", PORT));
     await connectDB();
 
     const seeder = new SeedDatabaseService();
     await seeder.executar();
-    console.log("Obras inseridas com sucesso no banco de dados.");
 }
 
 start();

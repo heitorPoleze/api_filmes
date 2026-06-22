@@ -74,6 +74,7 @@ export class SeedDatabaseService {
             if(totalObras < 90){
                 await this.seedearFilmes();
                 await this.seedearSeries();
+                console.log("Obras inseridas com sucesso no banco de dados.");
             }else{
                 console.log("Dados suficientes no banco de dados.")
             }

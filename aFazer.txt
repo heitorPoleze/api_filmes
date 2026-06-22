@@ -1,1 +1,9 @@
--> Não está seedeando corretamente diretores; nem atores nas series nem number_of
+-> crud de obras
+
+-> criar DTOS para a response corretamente; 
+
+-> obras que não existem não podem ser favoritadas (adicionarFavorito());
+
+-> nos Getters de usuário, ao invés de mostrar o ID dos favoritos, mostrar os dados das obras (exceto atores);
+
+-> crud de avaliacoes.
