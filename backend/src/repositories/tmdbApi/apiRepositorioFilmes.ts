@@ -37,7 +37,7 @@ export class ApiRepositorioFilmes extends ApiRepositorioObras {
 
     async getGeneros(filme: Filme): Promise<Filme> {
         try {
-            const id = filme.id;
+            const id = filme.idTmdb;
             const url = `${this._baseURL}${id}?api_key=${this._api_key}`;
             const response = await fetch(url);
 
@@ -49,15 +49,15 @@ export class ApiRepositorioFilmes extends ApiRepositorioObras {
             data.genres.forEach((genre: any) => generos.push(genre.name))
 
             return new Filme(
-                filme.id,
                 filme.name,
                 filme.overview,
-                filme.nota,
                 filme.atores,
                 generos,
-                filme.diretor,
+                filme.diretores,
                 filme.imgLink,
-                filme.release_date
+                filme.release_date,
+                filme.nota,
+                filme.idTmdb
             )
         } catch (error) {
             if (error instanceof Error) {
@@ -70,7 +70,7 @@ export class ApiRepositorioFilmes extends ApiRepositorioObras {
 
     async getAtores(filme: Filme): Promise<Filme> {
         try {
-            const id = filme.id;
+            const id = filme.idTmdb;
             const url = `${this._baseURL}${id}/credits?api_key=${this._api_key}`;
             const response = await fetch(url);
             if (!response.ok) throw new Error("Erro na comunicação com API TMDB");
@@ -85,15 +85,15 @@ export class ApiRepositorioFilmes extends ApiRepositorioObras {
             });
 
             return new Filme(
-                filme.id,
                 filme.name,
                 filme.overview,
-                filme.nota,
                 atores,
                 filme.genres,
-                filme.diretor,
+                filme.diretores,
                 filme.imgLink,
-                filme.release_date
+                filme.release_date,
+                filme.nota,
+                filme.idTmdb
             )
         } catch (error) {
             if (error instanceof Error) {
@@ -106,7 +106,7 @@ export class ApiRepositorioFilmes extends ApiRepositorioObras {
 
     async getDiretores(filme: Filme): Promise<Filme> {
         try {
-            const id = filme.id;
+            const id = filme.idTmdb;
             const url = `${this._baseURL}${id}/credits?api_key=${this._api_key}`;
             const response = await fetch(url);
             if (!response.ok) throw new Error("Erro na comunicação com API TMDB");
@@ -117,17 +117,16 @@ export class ApiRepositorioFilmes extends ApiRepositorioObras {
                 .map((diretorJson: any) => new Diretor(diretorJson.name));
 
             const newFilme =  new Filme(
-                filme.id,
                 filme.name,
                 filme.overview,
-                filme.nota,
                 filme.atores,
                 filme.genres,
                 diretores,
                 filme.imgLink,
-                filme.release_date
+                filme.release_date,
+                filme.nota,
+                filme.idTmdb
             )
-            console.log("FILMES COM DIRETORES", newFilme);
             return newFilme;
         } catch (error) {
             if (error instanceof Error) {
@@ -140,15 +139,15 @@ export class ApiRepositorioFilmes extends ApiRepositorioObras {
 
     protected mapToObra(jsonTMDB: any): Filme {
         return new Filme(
-            jsonTMDB.id,
             jsonTMDB.title,
             jsonTMDB.overview,
-            jsonTMDB.vote_average,
             [],
             [],
             [],
             jsonTMDB.poster_path,
-            jsonTMDB.release_date
+            jsonTMDB.release_date,
+            jsonTMDB.vote_average,
+            jsonTMDB.id
         )
     }
 }

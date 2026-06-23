@@ -8,7 +8,7 @@ const baseOptions = {
 };
 
 const ObraBaseSchema = new Schema({
-  _id: { type: Number, required: true },
+  idTmdb: { type: Number, required: false },
   name: { type: String, required: true },
   overview: { type: String, required: true },
   genres: { type: [String], default: [] },

@@ -1,23 +1,26 @@
+import { ObraDoc } from "../types/ObraDoc.ts";
 import { tipoObra } from "../types/tipoObra.ts";
 import { Ator } from "./Ator.ts";
 
 export abstract class Obra {
-    private _id: number;
     private _name: string;
     private _overview: string;
     private _genres: Array<string>;
-    private _nota: number;
     private _atores: Array<Ator>;
     
+    private _idTmdb?: number;
+    private _id?: string;
+    private _nota?: number;
     private _imgLink?: string;
     private _release_date?: string;
 
-    constructor(id: number, name: string, overview: string, nota: number, atores: Array<Ator>, genres: Array<string>, imgLink?: string, release_date?: string) {
+    constructor(name: string, overview: string, atores: Array<Ator>, genres: Array<string>, imgLink?: string, release_date?: string, nota?: number, idTmdb?: number, id?: string) {
+        this._idTmdb = idTmdb;
         this._id = id;
         this._name = name;
         this._overview = overview;
         this._genres = genres;
-        this._nota = Number(nota.toFixed(2));
+        this._nota = Number(nota?.toFixed(2));
         this._atores = atores;
         this._release_date = release_date;
 
@@ -28,9 +31,14 @@ export abstract class Obra {
 
     abstract get tipoObra(): tipoObra;
 
-    get id(): number {
+    get idTmdb(): number | undefined {
+        return this._idTmdb;
+    }
+
+    get id(): string | undefined {
         return this._id;
     }
+
     get name(): string {
         return this._name;
     }
@@ -40,7 +48,7 @@ export abstract class Obra {
     get imgLink(): string | undefined {
         return this._imgLink;
     }
-    get nota(): number {
+    get nota(): number | undefined {
         return this._nota;
     }
     get atores(): Array<Ator> {
@@ -71,6 +79,7 @@ export abstract class Obra {
     toJson(): object {
         return {
             id: this.id,
+            idTmdb: this.idTmdb,
             name: this.name,
             overview: this.overview,  
             genres: this.genres,  
@@ -82,20 +91,29 @@ export abstract class Obra {
         }
     }
 
-    toDatabaseDocument(): object {
+    toDatabaseDocument(): ObraDoc {
         return {
-            _id: this.id,
+            idTmdb: this.idTmdb,
             name: this.name,
             overview: this.overview,
             genres: this.genres,
             imgLink: this.imgLink,
-            nota: this.nota,
+            nota: this.nota ?? 0,
             atores: this.atores.map(ator => ({ name: ator.name, character: ator.character })), 
             release_date: this.release_date
         }
     }
 
-    pesquisarPorCriterio(criterio: string): boolean {
-        return this.name.toLowerCase().includes(criterio.toLowerCase());
+    createDoc(): ObraDoc {
+        return {
+            idTmdb: this.idTmdb,
+            name: this.name,
+            overview: this.overview,
+            genres: this.genres,
+            imgLink: this.imgLink,
+            nota: 0,
+            atores: this.atores,
+            release_date: this.release_date,
+        }
     }
 }

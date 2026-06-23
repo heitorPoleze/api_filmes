@@ -1,6 +1,4 @@
--> crud de obras
-
--> criar DTOS para a response corretamente; 
+-> testar crud de obras (com ator, sem ator, diretor, nº episodios etc);
 
 -> obras que não existem não podem ser favoritadas (adicionarFavorito());
 

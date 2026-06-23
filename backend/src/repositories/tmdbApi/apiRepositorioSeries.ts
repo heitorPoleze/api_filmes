@@ -1,5 +1,4 @@
 import { Ator } from "../../entities/domains/Ator.ts";
-import { Obra } from "../../entities/domains/Obra.ts";
 import { Serie } from "../../entities/domains/Serie.ts";
 import { ApiRepositorioObras } from "./apiRepositorioObras.ts";
 
@@ -39,7 +38,7 @@ export class ApiRepositorioSeries extends ApiRepositorioObras {
 
     async getGeneros(serie: Serie): Promise<Serie> {
         try {
-            const id = serie.id;
+            const id = serie.idTmdb;
             const url = `${this._baseURL}${id}?api_key=${this._api_key}`;
             const response = await fetch(url);
 
@@ -51,16 +50,16 @@ export class ApiRepositorioSeries extends ApiRepositorioObras {
             data.genres.forEach((genre: any) => generos.push(genre.name))
 
             return new Serie(
-                serie.id,
                 serie.name,
                 serie.overview,
-                serie.nota,
                 serie.atores,
                 generos,
-                serie.number_of_episodes,
-                serie.number_of_seasons,
                 serie.imgLink,
-                serie.release_date
+                serie.release_date,
+                serie.nota,
+                serie.idTmdb,
+                serie.number_of_episodes,
+                serie.number_of_seasons
             )
         } catch (error) {
             if (error instanceof Error) {
@@ -73,7 +72,7 @@ export class ApiRepositorioSeries extends ApiRepositorioObras {
 
     async getAtores(serie: Serie): Promise<Serie> {
         try {
-            const id = serie.id;
+            const id = serie.idTmdb;
             const url = `${this._baseURL}${id}/credits?api_key=${this._api_key}`;
             const response = await fetch(url);
             if (!response.ok) throw new Error("Erro na comunicação com API TMDB");
@@ -87,16 +86,16 @@ export class ApiRepositorioSeries extends ApiRepositorioObras {
                 ))
             });
             const newSerie =  new Serie(
-                serie.id,
                 serie.name,
                 serie.overview,
-                serie.nota,
                 atores,
                 serie.genres,
-                serie.number_of_episodes,
-                serie.number_of_seasons,
                 serie.imgLink,
-                serie.release_date
+                serie.release_date,
+                serie.nota,
+                serie.idTmdb,
+                serie.number_of_episodes,
+                serie.number_of_seasons
             );
 
             return newSerie;
@@ -111,7 +110,7 @@ export class ApiRepositorioSeries extends ApiRepositorioObras {
 
     async getNumberOfEpisodesAndSeasons(serie: Serie): Promise<Serie> {
         try{
-            const id = serie.id;
+            const id = serie.idTmdb;
             const url = `${this._baseURL}${id}?api_key=${this._api_key}`
 
             const response = await fetch(url);
@@ -122,16 +121,16 @@ export class ApiRepositorioSeries extends ApiRepositorioObras {
             const number_of_seasons = data.number_of_seasons;
 
             return new Serie(
-                serie.id,
                 serie.name,
                 serie.overview,
-                serie.nota,
                 serie.atores,
                 serie.genres,
-                number_of_episodes,
-                number_of_seasons,
                 serie.imgLink,
-                serie.release_date
+                serie.release_date,
+                serie.nota,
+                serie.idTmdb,
+                number_of_episodes,
+                number_of_seasons
             )
         }catch(error){
             if (error instanceof Error) {
@@ -143,16 +142,16 @@ export class ApiRepositorioSeries extends ApiRepositorioObras {
     }
     protected mapToObra(jsonTMDB: any): Serie {
         return new Serie(
-            jsonTMDB.id,
             jsonTMDB.name,
             jsonTMDB.overview,
-            jsonTMDB.vote_average,
             [],
             [],
-            jsonTMDB.number_of_episodes || 0,
-            jsonTMDB.number_of_seasons || 0,
             jsonTMDB.poster_path,
-            jsonTMDB.first_air_date,
+            jsonTMDB.release_date,
+            jsonTMDB.vote_average,
+            jsonTMDB.id,
+            jsonTMDB.number_of_episodes,
+            jsonTMDB.number_of_seasons
         )
     }
 }
