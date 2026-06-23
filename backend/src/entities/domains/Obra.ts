@@ -112,7 +112,10 @@ export abstract class Obra {
             genres: this.genres,
             imgLink: this.imgLink,
             nota: 0,
-            atores: this.atores,
+            atores: this.atores.map(ator => ({ 
+                name: ator.name, 
+                character: ator.character 
+            })),
             release_date: this.release_date,
         }
     }

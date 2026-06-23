@@ -4,12 +4,20 @@ import { Obra } from "../../entities/domains/Obra.ts";
 import { Serie } from "../../entities/domains/Serie.ts";
 import { FilmeModel, ObraModel, SerieModel } from "../../entities/models/ObraModel.ts";
 import { FilmeDoc, SerieDoc } from "../../entities/types/ObraDoc.ts";
+import { ObraFactory } from "../../entities/domains/factories/ObraFactory.ts";
 
 export class ObraRepository {
     async criar(obra: Obra): Promise<Obra> {
         try {
+            const obraExistente = await ObraModel.findOne({ name: obra.name });
+
+            if (obraExistente) {
+                throw new Error(`Já existe uma obra cadastrada com o nome '${obra.name}'.`);
+            }
+
             if (obra instanceof Filme) {
                 const userToDb = obra.createDoc();
+                
                 const userCreated = await FilmeModel.create(userToDb);
 
                 return Filme.fromDatabase(userCreated);
@@ -33,8 +41,24 @@ export class ObraRepository {
 
     async criarMuitos(obras: Obra[]): Promise<Obra[]> {
         try {
-            const filmes = obras.filter(obra => obra instanceof Filme);
-            const series = obras.filter(obra => obra instanceof Serie);
+            //filtra duplicatas do payload
+            const nomesVistos = new Set<string>();
+            const payloadSemDuplicatas = obras.filter(obra => {
+                if (nomesVistos.has(obra.name)) return false; 
+                nomesVistos.add(obra.name);
+                return true;
+            });
+            if (payloadSemDuplicatas.length === 0) throw new Error("O payload contém apenas obras duplicadas.");
+
+            //2. verifica duplicatas no banco de dados 
+            const nomesParaVerificar = payloadSemDuplicatas.map(obra => obra.name);
+            const obrasNoBanco = await ObraModel.find({ name: { $in: nomesParaVerificar } });
+
+            const nomesDuplicados = new Set(obrasNoBanco.map(obra => obra.name));
+            const obrasUnicas = payloadSemDuplicatas.filter(obra => !nomesDuplicados.has(obra.name));
+            if(obrasUnicas.length === 0) throw new Error("O payload contém obras duplicadas com o banco de dados.");
+            const filmes = obrasUnicas.filter(obra => obra instanceof Filme);
+            const series = obrasUnicas.filter(obra => obra instanceof Serie);
 
             const filmesToDb = filmes.map(filme => filme.createDoc());
             const seriesToDb = series.map(serie => serie.createDoc());
@@ -74,18 +98,22 @@ export class ObraRepository {
             const obra = await ObraModel.findById(id);
             if (!obra) return null;
 
-            const tipoDaObra = obra.get("tipo");
-
-            if (tipoDaObra === "filme") {
-                // unica forma do TS nao reclamar mesmo sabendo que vai chegar um filme
-                return Filme.fromDatabase(obra as unknown as FilmeDoc);
-            }
-
-            if (tipoDaObra === "serie") {
-                return Serie.fromDatabase(obra as unknown as SerieDoc);
-            }
-            throw new Error("Tipo de obra inválida.");
+            return ObraFactory.fromDatabase(obra);
         } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error("Erro desconhecido ao buscar obra no Banco de Dados.");
+        }
+    }
+
+    async buscarPorNome(nome: string): Promise<Obra | null> {
+        try {
+            const obra = await ObraModel.findOne({ name: nome });
+            if (!obra) return null;
+
+            return ObraFactory.fromDatabase(obra);
+            } catch (error) {
             if (error instanceof Error) {
                 throw new Error(error.message);
             }
@@ -109,18 +137,7 @@ export class ObraRepository {
 
             if (!obraUpdated) return null;
 
-            const tipoDaObra = obraUpdated.get("tipo");
-
-            if (tipoDaObra === "filme") {
-                // unica forma do TS nao reclamar mesmo sabendo que vai chegar um filme
-                return Filme.fromDatabase(obraUpdated as unknown as FilmeDoc);
-            }
-
-            if (tipoDaObra === "serie") {
-                return Serie.fromDatabase(obraUpdated as unknown as SerieDoc);
-            }
-
-            throw new Error("Tipo de obra inválida.");
+            return ObraFactory.fromDatabase(obraUpdated);
         } catch (error) {
             if (error instanceof Error) {
                 throw new Error(error.message);
@@ -132,6 +149,17 @@ export class ObraRepository {
     async deletar(id: string): Promise<boolean> {
         try {
             return await ObraModel.findByIdAndDelete(id) !== null ? true : false;
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error("Erro desconhecido ao deletar obra no Banco de Dados.");
+        }
+    }
+
+    async deletarPorNome(nome: string): Promise<boolean> {
+        try {
+            return await ObraModel.deleteOne({ name: nome }) !== null ? true : false;
         } catch (error) {
             if (error instanceof Error) {
                 throw new Error(error.message);

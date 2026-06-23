@@ -1,9 +1,13 @@
 import { model, Schema } from "mongoose";
+import { UsuarioDoc } from "../types/UsuarioDoc.ts";
 
 const UsuarioSchema = new Schema({
     nome: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    favoritos: { type: [Number], default: [] } // IDs das obras
+    favoritos: [{ 
+        type: Schema.Types.ObjectId, 
+        ref: 'Obra'
+    }]
 }, { timestamps: true });
 
-export const UsuarioModel = model("Usuario", UsuarioSchema);
+export const UsuarioModel = model<UsuarioDoc>("Usuario", UsuarioSchema);

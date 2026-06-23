@@ -4,9 +4,9 @@ export class Usuario {
     private _id?: string;
     private _nome: string;
     private _email: string;
-    private _favoritos: number[];
+    private _favoritos: string[];
 
-    constructor(nome: string, email: string, favoritos: number[] = [], id?: string) {
+    constructor(nome: string, email: string, favoritos: string[] = [], id?: string) {
         this._nome = nome;
         this._email = email;
         this._favoritos = favoritos;
@@ -25,17 +25,17 @@ export class Usuario {
         return this._email;
     }
 
-    get favoritos(): number[] {
+    get favoritos(): string[] {
         return [...this._favoritos];
     }
 
-    adicionarFavorito(obraId: number): void {
+    adicionarFavorito(obraId: string): void {
         if (!this._favoritos.includes(obraId)) {
             this._favoritos.push(obraId);
         }
     }
 
-    removerFavorito(obraId: number): void {
+    removerFavorito(obraId: string): void {
         this._favoritos = this._favoritos.filter(id => id !== obraId);
     }
 
@@ -69,11 +69,10 @@ export class Usuario {
         const nome = String(json.nome);
         const email = String(json.email);
         
-        let favoritos: number[] = [];
+        let favoritos: string[] = [];
         if (Array.isArray(json.favoritos)) {
             favoritos = json.favoritos
-                .map((fav: any) => Number(fav))
-                .filter((fav: number) => !isNaN(fav));
+                .map((fav: string) => fav);
         }
 
         const id = json.id || json._id ? String(json.id || json._id) : undefined;

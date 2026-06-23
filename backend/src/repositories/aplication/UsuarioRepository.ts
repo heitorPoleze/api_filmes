@@ -5,13 +5,18 @@ import { UsuarioModel } from "../../entities/models/UsuarioModel.ts";
 export class UsuarioRepository {
     async criar(usuario: Usuario): Promise<Usuario> {
         try {
+            const usuarioExistente = await UsuarioModel.findOne({ email: usuario.email });
+            if (usuarioExistente) {
+                throw new Error("Usuário com email duplicado.");
+            }
+
             const userToDB = usuario.toDatabaseDocument();
             const userCreated = await UsuarioModel.create(userToDB);
 
             return new Usuario(
                 userCreated.nome,
                 userCreated.email,
-                userCreated.favoritos,
+                userCreated.favoritos as string[],
                 userCreated._id.toString()
             )
         } catch (error) {
@@ -24,7 +29,28 @@ export class UsuarioRepository {
 
     async criarMuitos(usuarios: Usuario[]): Promise<Usuario[]> {
         try{
-            const usersToDB = usuarios.map(user => user.toDatabaseDocument());
+            const emails = new Set<string>();
+            const payloadSemDuplicatas = usuarios.filter(user => {
+                if (emails.has(user.email)) return false; 
+                emails.add(user.email);
+                return true;
+            });
+
+            if (payloadSemDuplicatas.length === 0) {
+                throw new Error("O payload contém apenas usuários com e-mails duplicados entre si.");
+            }
+
+            const emailsParaVerificar = payloadSemDuplicatas.map(user => user.email);
+            const usuariosNoBanco = await UsuarioModel.find({ email: { $in: emailsParaVerificar } });
+
+            const emailsDuplicadosNoBanco = new Set(usuariosNoBanco.map(user => user.email));
+            const usuariosUnicos = payloadSemDuplicatas.filter(user => !emailsDuplicadosNoBanco.has(user.email));
+
+            if (usuariosUnicos.length === 0) {
+                throw new Error("O payload contém apenas e-mails que já existem no banco de dados.");
+            }
+
+            const usersToDB = usuariosUnicos.map(user => user.toDatabaseDocument());
             const usersCreated = await UsuarioModel.insertMany(usersToDB);
 
             return usersCreated.map(user => Usuario.fromJson(user));
@@ -36,10 +62,10 @@ export class UsuarioRepository {
         }
     }
 
-    async buscarTodos(): Promise<Usuario[]> {
+    async buscarTodos(): Promise<any[]> {
         try {
-            const users = await UsuarioModel.find();
-
+            const users = await UsuarioModel.find().populate("favoritos", "-atores").lean();
+            
             return users.map(user => Usuario.fromJson(user));
         } catch (error) {
             if (error instanceof Error) {
@@ -56,18 +82,13 @@ export class UsuarioRepository {
                 throw new Error("ID inválido.");
             }
 
-            const user = await UsuarioModel.findById(id);
+            const user = await UsuarioModel.findById(id).populate("favoritos").lean();
 
             if (!user) {
                 return null;
             }
 
-            return new Usuario(
-                user.nome,
-                user.email,
-                user.favoritos,
-                user._id.toString()
-            );
+            return Usuario.fromJson(user);
         } catch (error) {
             if (error instanceof Error) {
                 throw new Error(error.message);
@@ -97,7 +118,7 @@ export class UsuarioRepository {
             return new Usuario(
                 userUpdated.nome,
                 userUpdated.email,
-                userUpdated.favoritos,
+                userUpdated.favoritos as string[],
                 userUpdated._id.toString()
             );
         } catch (error) {

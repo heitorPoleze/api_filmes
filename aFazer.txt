@@ -1,7 +1,9 @@
--> testar crud de obras (com ator, sem ator, diretor, nº episodios etc);
-
--> obras que não existem não podem ser favoritadas (adicionarFavorito());
-
--> nos Getters de usuário, ao invés de mostrar o ID dos favoritos, mostrar os dados das obras (exceto atores);
+-> NÃO SE PODE ADICIONAR OBRA QUE JÁ É FAVORITA.
 
 -> crud de avaliacoes.
+
+-> read: busca com filtros e projeção de campos
+
+-> seed de usuarios e avaliacoes 
+
+-> readme.md para passo a passo da aplicacao

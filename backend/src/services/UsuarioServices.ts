@@ -1,11 +1,14 @@
 import { Usuario } from "../entities/domains/Usuario.ts";
 import { UsuarioDoc } from "../entities/types/UsuarioDoc.ts";
+import { ObraRepository } from "../repositories/aplication/ObraRepository.ts";
 import { UsuarioRepository } from "../repositories/aplication/UsuarioRepository.ts";
 
 export class UsuarioServices {
     private _userRepo: UsuarioRepository;
+    private _obraRepo: ObraRepository;
     constructor(){
         this._userRepo = new UsuarioRepository();
+        this._obraRepo = new ObraRepository();
     }
 
     async criarUsuario(payload: UsuarioDoc): Promise<Usuario>{
@@ -104,11 +107,13 @@ export class UsuarioServices {
             const user = await this._userRepo.buscarPorId(idUser);
             if(!user) throw new Error("Usuário não encontrado.");
             
-            //TODO: ADICIONA VERIFICAÇÃO SE OBRA EXISTE -> depois que crud de obras for criada
-            user.adicionarFavorito(Number(idObra));
+            const obra = await this._obraRepo.buscarPorId(idObra);
+            if(!obra) throw new Error("Obra não encontrada.");
+
+            user.adicionarFavorito(idObra);
             
             const userUpdated = await this._userRepo.atualizar(idUser, user);
-            if(!userUpdated) throw new Error("Usuário não encontrado.");
+            if(!userUpdated) throw new Error("Falha ao atualizar usuário.");
             
             return userUpdated;
         }catch (error) {
@@ -124,10 +129,10 @@ export class UsuarioServices {
             const user = await this._userRepo.buscarPorId(idUser);
             if(!user) throw new Error("Usuário não encontrado.");
             
-            user.removerFavorito(Number(idObra));
+            user.removerFavorito(idObra);
             
             const userUpdated = await this._userRepo.atualizar(idUser, user);
-            if(!userUpdated) throw new Error("Usuário não encontrado.");
+            if(!userUpdated) throw new Error("Falha ao atualizar usuário.");
             
             return userUpdated;
         }catch (error) {

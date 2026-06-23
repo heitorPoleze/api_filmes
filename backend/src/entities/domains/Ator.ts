@@ -16,9 +16,9 @@ export class Ator extends Pessoa {
     return { ...super.toJson(), character: this.character };
   }
 
-  static fromJSON(jsonTMDB: any): Ator {
-    const nome = jsonTMDB.name || "Nome não informado";
-    const personagem = jsonTMDB.character; 
+  static fromJSON(json: any): Ator {
+    const nome = json.name || "Nome não informado";
+    const personagem = json.character; 
     
     return new Ator(nome, personagem);
   }
