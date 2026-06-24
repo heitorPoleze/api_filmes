@@ -2,7 +2,7 @@ import { model, Schema } from "mongoose";
 import { FilmeDoc, ObraDoc, SerieDoc } from "../types/ObraDoc.ts";
 
 const baseOptions = {
-  discriminatorKey: "tipo", //"tipo" não está como um dos atributos da collection obra porque o discriminatorKey espera uma herança ditar o que preencherá o atributo "tipo". Pode instanciar a superclasse, mas ela não terá por padrão o tipo.
+  discriminatorKey: "tipo", //"tipo" não está como um dos atributos do Schema Obra porque o discriminatorKey espera uma herança ditar o que preencherá o atributo "tipo". Pode instanciar a superclasse, mas ela não terá por padrão o tipo.
   collection: "obras",
   timestamps: true
 };

@@ -1,6 +1,9 @@
 import { Types } from "mongoose";
 import { Usuario } from "../../entities/domains/Usuario.ts";
 import { UsuarioModel } from "../../entities/models/UsuarioModel.ts";
+import { Obra } from "../../entities/domains/Obra.ts";
+import { ObraFactory } from "../../entities/domains/factories/ObraFactory.ts";
+import { ObraModel } from "../../entities/models/ObraModel.ts";
 
 export class UsuarioRepository {
     async criar(usuario: Usuario): Promise<Usuario> {
@@ -28,10 +31,10 @@ export class UsuarioRepository {
     }
 
     async criarMuitos(usuarios: Usuario[]): Promise<Usuario[]> {
-        try{
+        try {
             const emails = new Set<string>();
             const payloadSemDuplicatas = usuarios.filter(user => {
-                if (emails.has(user.email)) return false; 
+                if (emails.has(user.email)) return false;
                 emails.add(user.email);
                 return true;
             });
@@ -54,7 +57,7 @@ export class UsuarioRepository {
             const usersCreated = await UsuarioModel.insertMany(usersToDB);
 
             return usersCreated.map(user => Usuario.fromJson(user));
-        }catch (error) {
+        } catch (error) {
             if (error instanceof Error) {
                 throw new Error(error.message);
             }
@@ -65,7 +68,7 @@ export class UsuarioRepository {
     async buscarTodos(): Promise<any[]> {
         try {
             const users = await UsuarioModel.find().populate("favoritos", "-atores").lean();
-            
+
             return users.map(user => Usuario.fromJson(user));
         } catch (error) {
             if (error instanceof Error) {
@@ -82,7 +85,7 @@ export class UsuarioRepository {
                 throw new Error("ID inválido.");
             }
 
-            const user = await UsuarioModel.findById(id).populate("favoritos").lean();
+            const user = await UsuarioModel.findById(id).populate("favoritos", "-atores").lean();
 
             if (!user) {
                 return null;
@@ -103,24 +106,23 @@ export class UsuarioRepository {
                 throw new Error("ID inválido.");
             }
 
-            const userToDb = usuarioAtualizado.toDatabaseDocument();
+            const emailEmUso = await UsuarioModel.findOne({
+                email: usuarioAtualizado.email,
+                _id: { $ne: id } //not equal
+            });
 
-            const userUpdated = await UsuarioModel.findByIdAndUpdate(
-                id,
-                userToDb,
-                { new: true } //devolve os dados novos
-            );
+            if (emailEmUso) throw new Error("E-mail já em uso no sistema.");
 
-            if (!userUpdated) {
-                return null;
+            const dadosParaAtualizar = {
+                nome: usuarioAtualizado.nome,
+                email: usuarioAtualizado.email,
             }
 
-            return new Usuario(
-                userUpdated.nome,
-                userUpdated.email,
-                userUpdated.favoritos as string[],
-                userUpdated._id.toString()
-            );
+            const user = await UsuarioModel.findByIdAndUpdate(id, dadosParaAtualizar, { new: true });
+
+            if (!user) throw new Error("Usuário não encontrado.");
+            return Usuario.fromJson(user);
+
         } catch (error) {
             if (error instanceof Error) {
                 throw new Error(error.message);
@@ -142,6 +144,72 @@ export class UsuarioRepository {
                 throw new Error(error.message);
             }
             throw new Error("Erro desconhecido ao deletar usuário no Banco de Dados.");
+        }
+    }
+
+
+    async adicionarFavorito(idUser: string, idObra: string): Promise<Usuario> {
+        try {
+            if (!Types.ObjectId.isValid(idUser)) throw new Error("ID do usuário é inválido.");
+            if (!Types.ObjectId.isValid(idObra)) throw new Error("ID da obra é inválido.");
+
+            const user = await UsuarioModel.findById(idUser);
+            if (!user) throw new Error("Usuário não encontrado.");
+
+            const obra = await ObraModel.findById(idObra);
+            if (!obra) throw new Error("Obra não encontrada no sistema.");
+
+            const jaFavoritado = user.favoritos.some(favId => favId.toString() === idObra);            
+            if (jaFavoritado) throw new Error("Esta obra já está na sua lista de favoritos.");
+                        
+            const userUpdated = await UsuarioModel.findByIdAndUpdate(
+                idUser,
+                { $addToSet: { favoritos: idObra } },
+                { new: true } 
+            );
+
+            if (!userUpdated) throw new Error("Falha ao atualizar os favoritos do usuário.");
+
+            return Usuario.fromJson(userUpdated);
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error("Erro desconhecido ao adicionar favorito no Banco de Dados.");
+        }
+    }
+
+async removerFavorito(idUser: string, idObra: string): Promise<Usuario> {
+        try {
+            if (!Types.ObjectId.isValid(idUser)) {
+                throw new Error("ID do usuário é inválido.");
+            }
+            if (!Types.ObjectId.isValid(idObra)) {
+                throw new Error("ID da obra é inválido.");
+            }
+
+            const user = await UsuarioModel.findById(idUser);
+            if (!user) {
+                throw new Error("Usuário não encontrado.");
+            }
+
+            const userUpdated = await UsuarioModel.findByIdAndUpdate(
+                idUser,
+                { $pull: { favoritos: idObra } },
+                { new: true }
+            );
+
+            if (!userUpdated) {
+                throw new Error("Falha ao atualizar: Usuário não encontrado.");
+            }
+
+            return Usuario.fromJson(userUpdated);
+
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error("Erro desconhecido ao remover favorito no Banco de Dados.");
         }
     }
 }

@@ -5,6 +5,7 @@ import { Serie } from "../../entities/domains/Serie.ts";
 import { FilmeModel, ObraModel, SerieModel } from "../../entities/models/ObraModel.ts";
 import { FilmeDoc, SerieDoc } from "../../entities/types/ObraDoc.ts";
 import { ObraFactory } from "../../entities/domains/factories/ObraFactory.ts";
+import { UsuarioModel } from "../../entities/models/UsuarioModel.ts";
 
 export class ObraRepository {
     async criar(obra: Obra): Promise<Obra> {

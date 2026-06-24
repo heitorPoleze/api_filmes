@@ -1,8 +1,11 @@
--> NÃO SE PODE ADICIONAR OBRA QUE JÁ É FAVORITA.
-
 -> crud de avaliacoes.
+    -> regras de negocio: 
+        -> update na nota da obra a partir do aumento da média
+        -> mostrar 5 obras mais avaliadas
+        -> mostrar 5 obras melhores avaliadas
+    -> as buscas acima devem ter $match, $group, $lookup, $project ou $addFields, $sort e/ou $limit, $sum, $avg, $count, ou $max.
 
--> read: busca com filtros e projeção de campos
+-> read: busca com filtros e projeção de campos com query params (pesquisar por nome e data lançamento, etc)
 
 -> seed de usuarios e avaliacoes 
 

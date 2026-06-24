@@ -78,8 +78,8 @@ export class UsuarioServices {
                 favoritos: oldUser.favoritos
             }
 
-            const userToDb = Usuario.fromJson(userToUpdate);
-            const updatedUser = await this._userRepo.atualizar(id, userToDb);
+            const user = Usuario.fromJson(userToUpdate);
+            const updatedUser = await this._userRepo.atualizar(id, user);
             
             if(!updatedUser) throw new Error("Usuário não encontrado.");
             return updatedUser;
@@ -103,43 +103,10 @@ export class UsuarioServices {
     }
 
     async adicionarFavorito(idUser: string, idObra: string): Promise<Usuario>{
-        try{
-            const user = await this._userRepo.buscarPorId(idUser);
-            if(!user) throw new Error("Usuário não encontrado.");
-            
-            const obra = await this._obraRepo.buscarPorId(idObra);
-            if(!obra) throw new Error("Obra não encontrada.");
-
-            user.adicionarFavorito(idObra);
-            
-            const userUpdated = await this._userRepo.atualizar(idUser, user);
-            if(!userUpdated) throw new Error("Falha ao atualizar usuário.");
-            
-            return userUpdated;
-        }catch (error) {
-            if (error instanceof Error) {
-                throw new Error(error.message);
-            }
-            throw new Error("Erro desconhecido ao adicionar favorito no Banco de Dados.");
-        }
+        return await this._userRepo.adicionarFavorito(idUser, idObra); 
     }
 
     async removerFavorito(idUser: string, idObra: string): Promise<Usuario>{
-        try{
-            const user = await this._userRepo.buscarPorId(idUser);
-            if(!user) throw new Error("Usuário não encontrado.");
-            
-            user.removerFavorito(idObra);
-            
-            const userUpdated = await this._userRepo.atualizar(idUser, user);
-            if(!userUpdated) throw new Error("Falha ao atualizar usuário.");
-            
-            return userUpdated;
-        }catch (error) {
-            if (error instanceof Error) {
-                throw new Error(error.message);
-            }
-            throw new Error("Erro desconhecido ao remover favorito no Banco de Dados.");
-        }
+        return await this._userRepo.removerFavorito(idUser, idObra); 
     }
 }

@@ -8,6 +8,7 @@ export interface ObraDoc {
   nota: number;
   release_date?: string;
   atores: { name: string; character: string }[];
+  tipo?: string;
 }
 
 export interface FilmeDoc extends ObraDoc {

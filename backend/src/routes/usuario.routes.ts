@@ -14,7 +14,7 @@ userRoutes.put("/:id", (req, res) => usuarioController.atualizar(req, res));
 
 userRoutes.delete("/:id", (req, res) => usuarioController.deletar(req, res));
 
-userRoutes.post("/:idUser/favorito/:idObra", (req, res) => usuarioController.adicionarFavorito(req, res));
-userRoutes.delete("/:idUser/favorito/:idObra", (req, res) => usuarioController.removerFavorito(req, res));
+userRoutes.post("/:idUser/favoritos/:idObra", (req, res) => usuarioController.adicionarFavorito(req, res));
+userRoutes.delete("/:idUser/favoritos/:idObra", (req, res) => usuarioController.removerFavorito(req, res));
 
 export {userRoutes};

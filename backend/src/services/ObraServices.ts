@@ -1,6 +1,7 @@
 import { ObraFactory } from "../entities/domains/factories/ObraFactory.ts";
 import { Filme } from "../entities/domains/Filme.ts";
 import { Obra } from "../entities/domains/Obra.ts";
+import { ObraDoc } from "../entities/types/ObraDoc.ts";
 import { ObraRepository } from "../repositories/aplication/ObraRepository.ts";
 
 export class ObraServices {
@@ -76,7 +77,7 @@ export class ObraServices {
         }
     }
 
-async atualizar(id: string, obra: any): Promise<Obra> {
+async atualizar(id: string, obra: ObraDoc): Promise<Obra> {
         try {
             const oldObra = await this._obraRepo.buscarPorId(id);
 
