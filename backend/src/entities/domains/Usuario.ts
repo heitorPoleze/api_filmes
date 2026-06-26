@@ -44,10 +44,9 @@ export class Usuario {
             id: this.id,
             nome: this.nome,
             email: this.email,
-            favoritos: this.favoritos
+            favoritos: this.favoritos,
         };
     }
-
 
     toDatabaseDocument(): UsuarioDoc {
         return {
