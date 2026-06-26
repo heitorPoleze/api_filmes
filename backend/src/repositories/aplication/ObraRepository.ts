@@ -18,7 +18,7 @@ export class ObraRepository {
 
             if (obra instanceof Filme) {
                 const userToDb = obra.createDoc();
-                
+
                 const userCreated = await FilmeModel.create(userToDb);
 
                 return Filme.fromDatabase(userCreated);
@@ -45,7 +45,7 @@ export class ObraRepository {
             //filtra duplicatas do payload
             const nomesVistos = new Set<string>();
             const payloadSemDuplicatas = obras.filter(obra => {
-                if (nomesVistos.has(obra.name)) return false; 
+                if (nomesVistos.has(obra.name)) return false;
                 nomesVistos.add(obra.name);
                 return true;
             });
@@ -57,7 +57,7 @@ export class ObraRepository {
 
             const nomesDuplicados = new Set(obrasNoBanco.map(obra => obra.name));
             const obrasUnicas = payloadSemDuplicatas.filter(obra => !nomesDuplicados.has(obra.name));
-            if(obrasUnicas.length === 0) throw new Error("O payload contém obras duplicadas com o banco de dados.");
+            if (obrasUnicas.length === 0) throw new Error("O payload contém obras duplicadas com o banco de dados.");
             const filmes = obrasUnicas.filter(obra => obra instanceof Filme);
             const series = obrasUnicas.filter(obra => obra instanceof Serie);
 
@@ -114,7 +114,7 @@ export class ObraRepository {
             if (!obra) return null;
 
             return ObraFactory.fromDatabase(obra);
-            } catch (error) {
+        } catch (error) {
             if (error instanceof Error) {
                 throw new Error(error.message);
             }
@@ -167,5 +167,22 @@ export class ObraRepository {
             }
             throw new Error("Erro desconhecido ao deletar obra no Banco de Dados.");
         }
+    }
+
+    async atualizarNota(idObra: string, novaNotaMedia: number): Promise<Obra> {
+        if (!Types.ObjectId.isValid(idObra)) {
+            throw new Error("ID da obra inválido para atualização.");
+        }
+
+        const atualizado = await ObraModel.findByIdAndUpdate(
+            idObra,
+            { $set: { nota: novaNotaMedia } },
+            { new: true } // Retorna o documento atualizado
+        );
+
+        if (!atualizado) {
+            throw new Error("Obra não encontrada para a atualização da nota.");
+        }
+        return ObraFactory.fromDatabase(atualizado);
     }
 }
