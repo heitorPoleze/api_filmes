@@ -39,13 +39,13 @@ export class Filme extends Obra {
     }
 
     static fromDatabase(payload: FilmeDoc): Filme {
-        const atores = payload.atores.map(ator => new Ator(ator.name, ator.character));
-        const diretores = payload.diretores.map(diretor => new Diretor(diretor));
+        const atores = payload.atores.map(ator => new Ator(ator.name, ator.character)) || [];
+        const diretores = payload.diretores.map(diretor => new Diretor(diretor)) || [];
         return new Filme(
             payload.name,
             payload.overview,
             atores,
-            payload.genres,
+            payload.genres || [],
             diretores,
             payload.imgLink,
             payload.release_date,

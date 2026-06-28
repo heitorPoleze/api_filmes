@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { ObraServices } from "../services/ObraServices.ts";
+import { ObraServices } from "../services/application/ObraServices.ts";
 import { ObraFactory } from "../entities/domains/factories/ObraFactory.ts";
 
 export class ObraController {

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { UsuarioServices } from "../services/UsuarioServices.ts";
+import { UsuarioServices } from "../services/application/UsuarioServices.ts";
 
 export class UsuarioController {
     _userServices: UsuarioServices;
@@ -35,7 +35,14 @@ export class UsuarioController {
 
     async buscarTodos(req: Request, res: Response): Promise<void> {
         try {
-            const usuarios = await this._userServices.buscarTodos();
+            let usuarios;
+            const nome = req.query.nome as string | undefined;
+            const email = req.query.email as string | undefined;
+            if(email || nome) {
+                usuarios = await this._userServices.buscarPorFiltros(nome, email);
+            }else{
+                usuarios = await this._userServices.buscarTodos();
+            }
 
             res.status(200).json(usuarios.map(usuario => usuario.toJson()));
         } catch (error) {

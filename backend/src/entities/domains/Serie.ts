@@ -47,13 +47,13 @@ export class Serie extends Obra {
     }
 
     static fromDatabase(payload: SerieDoc): Serie {
-        const atores = payload.atores.map(ator => new Ator(ator.name, ator.character));
+        const atores = payload.atores.map(ator => new Ator(ator.name, ator.character)) || [];
 
         return new Serie(
             payload.name,
             payload.overview,
             atores,
-            payload.genres,
+            payload.genres || [],
             payload.imgLink,
             payload.release_date,
             payload.nota,
