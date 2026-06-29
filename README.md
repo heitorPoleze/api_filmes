@@ -12,7 +12,7 @@ Certifique-se de ter instalado em sua máquina:
 * **MongoDB** (Comunitário ou Atlas).
 
 ### 2. Instalação do Banco de Dados (MongoDB)
-* **Local:** [Baixe e instale o MongoDB Community Server](https://www.mongodb.com/try/download/community). Certifique-se de que o serviço `mongod` esteja rodando (geralmente na porta `27017`).
+* **Local:** [Baixe e instale o MongoDB Community Server](https://www.mongodb.com/try/download/community). Certifique-se de que o serviço `mongodb` esteja rodando (geralmente na porta `27017`).
 
 ### 3. Configuração do Ambiente
 1. Clone este repositório em sua máquina.
